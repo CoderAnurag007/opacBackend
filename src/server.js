@@ -84,7 +84,7 @@ mongoose
   });
 
 // Import the API routes from api.js
-const apiRoutes = require("./routes/main");
+const apiRoutes = require("../routes/main");
 
 // // Serve static files in production mode only
 // app.use("/", (request, response) => {
