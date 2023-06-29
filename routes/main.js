@@ -65,14 +65,14 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password, logintoken } = req.body;
-
     if (logintoken) {
+      console.log(logintoken);
       try {
         const decoded = jwt.verify(
           logintoken,
           process.env.JWT_SECRET_KEY || "secretKey"
         );
-
+        // console.log(decoded);
         const tokenmail = decoded.email;
         if (tokenmail != email) {
           return res.status(404).json({
@@ -80,6 +80,7 @@ router.post("/login", async (req, res) => {
           });
         }
         const user = await User.findOne({ email: tokenmail });
+        console.log(user);
         if (!user) {
           return res
             .status(404)
