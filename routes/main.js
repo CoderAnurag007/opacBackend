@@ -74,7 +74,7 @@ router.post("/login", async (req, res) => {
         );
         // console.log(decoded);
         const tokenmail = decoded.email;
-        if (tokenmail != email) {
+        if (tokenmail.toLowerCase() != email.toLowerCase()) {
           return res.status(404).json({
             message: "Entered Email Not matching with Registerd Email",
           });
