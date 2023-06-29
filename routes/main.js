@@ -41,7 +41,17 @@ router.post("/register", async (req, res) => {
     });
 
     let subject = "Opac Account Activation";
-    let message = "Activate ur account";
+    let message = `<!DOCTYPE html>
+    <html>
+    <head>
+      <title>Login Page</title>
+    </head>
+    <body>
+      <h1>Login Page</h1>
+      <p>Please click the link below to login:</p>
+      <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
+    </body>
+    </html>`;
     await sendEmail(email, subject, message);
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
