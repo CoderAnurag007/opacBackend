@@ -33,7 +33,7 @@ router.post("/register", async (req, res) => {
     const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
 
     // Set the expiration time (e.g., 1 hour)
-    const expiresIn = "20m";
+    const expiresIn = "2h";
 
     // Generate the JWT
     const token = jwt.sign({ email: email }, secretKey, {
@@ -94,7 +94,7 @@ router.post("/login", async (req, res) => {
         if (error.name == "TokenExpiredError") {
           let subject = "Opac Account Activation";
           const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
-          const expiresIn = "20m";
+          const expiresIn = "2h";
           const token = jwt.sign({ email: email }, secretKey, {
             expiresIn,
           });
@@ -141,7 +141,7 @@ router.post("/login", async (req, res) => {
       if (user.status == "SUSPENDED") {
         let subject = "Opac Account Activation";
         const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
-        const expiresIn = "20m";
+        const expiresIn = "2h";
         const token = jwt.sign({ email: user.email }, secretKey, {
           expiresIn,
         });
@@ -180,7 +180,7 @@ function generateToken(userId, role) {
   const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
 
   // Set the expiration time (e.g., 1 hour)
-  const expiresIn = "20m";
+  const expiresIn = "2h";
 
   // Generate the JWT
   const token = jwt.sign({ userId: userId, role: role }, secretKey, {
