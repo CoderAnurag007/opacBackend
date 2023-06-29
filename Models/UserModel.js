@@ -29,6 +29,22 @@ const userSchema = new mongoose.Schema({
 
     default: "merchant",
   },
+  status: {
+    type: String,
+    enum: [
+      "BETA",
+      "ALPHA",
+      "GAMMA",
+      "UNDER REVIEW",
+      "DECLINED",
+      "PRE-ACTIVE",
+      "ACTIVE",
+      "SUSPENDED",
+      "TERMINATED",
+    ],
+
+    default: "SUSPENDED",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

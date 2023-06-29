@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const User = require("../Models/UserModel");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-
+const Imap = require("imap");
 // Registration API
 
 router.post("/register", async (req, res) => {
@@ -14,7 +14,9 @@ router.post("/register", async (req, res) => {
     // Check if the username already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: "Username already exists" });
+      return res
+        .status(e)
+        .json({ message: "User already exists, Login to Proceed" });
     }
 
     // Hash the password
@@ -28,11 +30,23 @@ router.post("/register", async (req, res) => {
       email,
     });
     await newUser.save();
+    const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
 
+    // Set the expiration time (e.g., 1 hour)
+    const expiresIn = "20m";
+
+    // Generate the JWT
+    const token = jwt.sign({ email: email }, secretKey, {
+      expiresIn,
+    });
+
+    let subject = "Opac Account Activation";
+    let message = "Activate ur account";
+    await sendEmail(email, subject, message);
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error(error);
-    res.status(403).json({ error: error.message });
+    res.status(403).json({ message: error.message });
   }
 });
 
@@ -40,32 +54,113 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, logintoken } = req.body;
 
-    // Find the user by username (email)
-    const user = await User.findOne({ email });
+    if (logintoken) {
+      try {
+        const decoded = jwt.verify(
+          logintoken,
+          process.env.JWT_SECRET_KEY || "secretKey"
+        );
 
-    // If user not found, return error
-    if (!user) {
-      return res.status(404).json({ message: "Invalid username or password" });
+        const tokenmail = decoded.email;
+        if (tokenmail != email) {
+          return res.status(404).json({
+            message: "Entered Email Not matching with Registerd Email",
+          });
+        }
+        const user = await User.findOne({ email: tokenmail });
+        if (!user) {
+          return res
+            .status(404)
+            .json({ message: "Not Registered Properly , Register Again" });
+        }
+        user.status = "ACTIVE";
+        await user.save();
+        const token = generateToken(user._id, user.role);
+        // Return the token
+        res.status(200).json({ token: token });
+      } catch (error) {
+        if (error.name == "TokenExpiredError") {
+          let subject = "Opac Account Activation";
+          const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
+          const expiresIn = "20m";
+          const token = jwt.sign({ email: email }, secretKey, {
+            expiresIn,
+          });
+          let message = `<!DOCTYPE html>
+          <html>
+          <head>
+            <title>Login Page</title>
+          </head>
+          <body>
+            <h1>Login Page</h1>
+            <p>Please click the link below to login:</p>
+            <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
+          </body>
+          </html>`;
+          await sendEmail(email, subject, message);
+          return res.status(404).json({
+            message: "Link is Expired Please Check mail to get New Link",
+          });
+        } else {
+          return res.status(404).json({ message: "Invalid token provided." });
+        }
+      }
+    } else {
+      // Find the user by username (email)
+      const user = await User.findOne({ email });
+
+      // If user not found, return error
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "User not found! Create Account First" });
+      }
+
+      // Verify the password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      // If password is not valid, return error
+      if (!isPasswordValid) {
+        return res
+          .status(404)
+          .json({ message: "Invalid username or password" });
+      }
+
+      if (user.status == "SUSPENDED") {
+        let subject = "Opac Account Activation";
+        const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
+        const expiresIn = "20m";
+        const token = jwt.sign({ email: user.email }, secretKey, {
+          expiresIn,
+        });
+        let message = `<!DOCTYPE html>
+        <html>
+        <head>
+          <title>Login Page</title>
+        </head>
+        <body>
+          <h1>Login Page</h1>
+          <p>Please click the link below to login:</p>
+          <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
+        </body>
+        </html>`;
+        await sendEmail(user.email, subject, message);
+        return res.status(404).json({
+          message: "Please Activate your Account from link sent to your mail ",
+        });
+      }
+
+      // Generate a JWT
+      const token = generateToken(user._id, user.role);
+
+      // Return the token
+      res.status(200).json({ token: token });
     }
-
-    // Verify the password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    // If password is not valid, return error
-    if (!isPasswordValid) {
-      return res.status(404).json({ message: "Invalid username or password" });
-    }
-
-    // Generate a JWT
-    const token = generateToken(user._id, user.role);
-
-    // Return the token
-    res.status(200).json({ token: token });
   } catch (error) {
     console.log(error.message);
-    res.status(403).json({ error: error.message });
+    res.status(403).json({ message: "Unexpected Error Occured!" });
   }
 });
 
@@ -75,7 +170,7 @@ function generateToken(userId, role) {
   const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
 
   // Set the expiration time (e.g., 1 hour)
-  const expiresIn = "2m";
+  const expiresIn = "20m";
 
   // Generate the JWT
   const token = jwt.sign({ userId: userId, role: role }, secretKey, {
@@ -83,39 +178,6 @@ function generateToken(userId, role) {
   });
 
   return token;
-}
-
-// Generate a JWT for password reset
-function generateResetToken(userId) {
-  const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
-  const expiresIn = "1h";
-  const token = jwt.sign({ userId }, secretKey, { expiresIn });
-  return token;
-}
-
-// Send reset password email
-async function sendResetEmail(email, resetToken) {
-  const transporter = nodemailer.createTransport({
-    // Set up your email configuration here (e.g., SMTP)
-    // Example for Gmail:
-    service: "Gmail",
-    auth: {
-      user: "tempemailforcoding@gmail.com",
-      pass: "Temp@123456",
-    },
-  });
-
-  const mailOptions = {
-    from: "tempemailforcoding@gmail.com",
-    to: email,
-    subject: "Password Reset",
-    html: `
-      <p>Please click the following link to reset your password:</p>
-      <a href="http://localhost:3000/reset-password?token=${resetToken}">Reset Password</a>
-    `,
-  };
-
-  await transporter.sendMail(mailOptions);
 }
 
 // Forgot Password Api
@@ -195,16 +257,53 @@ router.get("/user", async (req, res) => {
     const user = await User.findOne({ email: req.body.email }); // Replace with your own logic to fetch user data from the database
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Return the user data
     res.json({ user });
   } catch (err) {
     console.error(err);
-    res.status(403).json({ error: "Server error" });
+    res.status(403).json({ message: "Server error" });
   }
 });
+
+async function sendEmail(recipientEmail, subject, message) {
+  const senderEmail = "testing@surprisetreat.com";
+  const username = "AKIASJ7TEBOUSDH6BPP6";
+  const senderPassword = "BLCLwUEPbPJNs5oQzoQqbX9LYzr6AB8w86u27G6X8cC1";
+  try {
+    // Create a SMTP transporter
+    const transporter = nodemailer.createTransport({
+      host: "email-smtp.us-east-1.amazonaws.com",
+      port: 465, // Replace with the appropriate port for your server
+      secure: true, // Set to true if using a secure connection (e.g., port 465)
+      auth: {
+        user: username,
+        pass: senderPassword,
+      },
+      tls: {
+        rejectUnauthorized: false, // Set to true if the server certificate should be verified
+      },
+    });
+
+    // Compose the email
+    const mailOptions = {
+      from: senderEmail,
+      to: recipientEmail,
+      subject: subject,
+      text: message,
+    };
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent:", info.messageId);
+    return "sent";
+  } catch (error) {
+    console.error("Error occurred while sending email:", error);
+    return "error";
+  }
+}
 
 // Export the router
 module.exports = router;

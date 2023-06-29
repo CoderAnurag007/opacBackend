@@ -12,6 +12,7 @@ const publicroutes = [
   "/api/register",
   "/api/forgot-password",
   "/api/change-password",
+  "/api/mail",
 ];
 
 // Middleware function to verify JWT token
