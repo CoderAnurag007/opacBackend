@@ -190,6 +190,20 @@ function generateToken(userId, role) {
 
   return token;
 }
+function generateResetToken(userId) {
+  // Set the JWT secret key
+  const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
+
+  // Set the expiration time (e.g., 1 hour)
+  const expiresIn = "2h";
+
+  // Generate the JWT
+  const token = jwt.sign({ userId: userId }, secretKey, {
+    expiresIn,
+  });
+
+  return token;
+}
 
 // Forgot Password Api
 
