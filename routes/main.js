@@ -99,7 +99,7 @@ router.post("/login", async (req, res) => {
           const token = jwt.sign({ email: email }, secretKey, {
             expiresIn,
           });
-          let message = `<!DOCTYPE html>
+          let html = `<!DOCTYPE html>
           <html>
           <head>
             <title>Login Page</title>
@@ -110,7 +110,7 @@ router.post("/login", async (req, res) => {
             <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
           </body>
           </html>`;
-          await sendEmail(email, subject, message);
+          await sendEmail(email, subject, html);
           return res.status(404).json({
             message: "Link is Expired Please Check mail to get New Link",
           });
@@ -303,7 +303,7 @@ async function sendEmail(recipientEmail, subject, message) {
       from: senderEmail,
       to: recipientEmail,
       subject: subject,
-      text: message,
+      html: message,
     };
 
     // Send the email
