@@ -67,6 +67,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password, logintoken } = req.body;
+    // Verify the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    // If password is not valid, return error
+    if (!isPasswordValid) {
+      return res.status(404).json({ message: "Invalid username or password" });
+    }
     if (logintoken) {
       console.log(logintoken);
       try {
@@ -84,11 +91,9 @@ router.post("/login", async (req, res) => {
         const user = await User.findOne({ email: tokenmail });
         console.log(user);
         if (!user) {
-          return res
-            .status(404)
-            .json({
-              message: "Account not Registered Properly , Register again",
-            });
+          return res.status(404).json({
+            message: "Account not Registered Properly , Register again",
+          });
         }
         user.status = "ACTIVE";
         await user.save();
@@ -134,16 +139,6 @@ router.post("/login", async (req, res) => {
         return res
           .status(404)
           .json({ message: "Account not found! Create Account First" });
-      }
-
-      // Verify the password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-
-      // If password is not valid, return error
-      if (!isPasswordValid) {
-        return res
-          .status(404)
-          .json({ message: "Invalid username or password" });
       }
 
       if (user.status == "SUSPENDED") {
