@@ -239,7 +239,7 @@ router.post("/forgot-password", async (req, res) => {
     // await sendResetEmail(user.email, resetToken);
 
     res.status(200).json({
-      url: `http://localhost:3000/new-password?token=${resetToken}`,
+      url: `https://opacfrontend.netlify.app/new-password?token=${resetToken}`,
       resetToken: resetToken,
       message: "Password reset email sent",
     });
