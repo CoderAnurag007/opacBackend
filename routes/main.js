@@ -271,7 +271,7 @@ router.post("/change-password", async (req, res) => {
     // Find the user in the database
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Hash the new password
@@ -285,7 +285,7 @@ router.post("/change-password", async (req, res) => {
     res.json({ message: "Password changed successfully" });
   } catch (error) {
     console.error("Error changing password:", error);
-    res.status(403).json({ error: "Failed to change password" });
+    res.status(403).json({ message: "Failed to change password" });
   }
 });
 
