@@ -230,7 +230,7 @@ router.post("/forgot-password", async (req, res) => {
     <body>
       <h1>Password Reset Page</h1>
       <p>Please click the link below to Set New Password:</p>
-      <a href="https://opacfrontend.netlify.app/login?logintoken=${resetToken}">Set New Password</a>
+      <a href="https://opacfrontend.netlify.app/new-password?token=${resetToken}">Set New Password</a>
     </body>
     </html>`;
     sendEmail(email, subject, message);
