@@ -9,14 +9,14 @@ const Imap = require("imap");
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, password, role, email } = req.body;
+    const { firstname, surname, companyName, password, role, email } = req.body;
 
     // Check if the username already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
         .status(e)
-        .json({ message: "User already exists, Login to Proceed" });
+        .json({ message: "Account already exists, Login to Proceed" });
     }
 
     // Hash the password
@@ -24,7 +24,9 @@ router.post("/register", async (req, res) => {
 
     // Create a new user with hashed password
     const newUser = new User({
-      name,
+      firstname,
+      surname,
+      companyName,
       password: hashedPassword,
       role,
       email,
@@ -44,19 +46,19 @@ router.post("/register", async (req, res) => {
     let message = `<!DOCTYPE html>
     <html>
     <head>
-      <title>Login Page</title>
+      <title>Account Activation Page</title>
     </head>
     <body>
-      <h1>Login Page</h1>
+      <h1>Account Activation Page</h1>
       <p>Please click the link below to login:</p>
       <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
     </body>
     </html>`;
     await sendEmail(email, subject, message);
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "Account registered successfully" });
   } catch (error) {
     console.error(error);
-    res.status(403).json({ message: error.message });
+    res.status(403).json({ message: "Internal Server Error Occured!" });
   }
 });
 
@@ -76,7 +78,7 @@ router.post("/login", async (req, res) => {
         const tokenmail = decoded.email;
         if (tokenmail.toLowerCase() != email.toLowerCase()) {
           return res.status(404).json({
-            message: "Entered Email Not matching with Registerd Email",
+            message: "Please Enter Valid Credentials to Login",
           });
         }
         const user = await User.findOne({ email: tokenmail });
@@ -84,7 +86,9 @@ router.post("/login", async (req, res) => {
         if (!user) {
           return res
             .status(404)
-            .json({ message: "Not Registered Properly , Register Again" });
+            .json({
+              message: "Account not Registered Properly , Register again",
+            });
         }
         user.status = "ACTIVE";
         await user.save();
@@ -102,20 +106,23 @@ router.post("/login", async (req, res) => {
           let html = `<!DOCTYPE html>
           <html>
           <head>
-            <title>Login Page</title>
+            <title>Account Activation Page</title>
           </head>
           <body>
-            <h1>Login Page</h1>
+            <h1>Account Activation Page</h1>
             <p>Please click the link below to login:</p>
             <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
           </body>
           </html>`;
           await sendEmail(email, subject, html);
           return res.status(404).json({
-            message: "Link is Expired Please Check mail to get New Link",
+            message:
+              "Activation Link is Expired Please Check mail to get New Link",
           });
         } else {
-          return res.status(404).json({ message: "Invalid token provided." });
+          return res
+            .status(404)
+            .json({ message: "Activation Link is  invalid!" });
         }
       }
     } else {
@@ -126,7 +133,7 @@ router.post("/login", async (req, res) => {
       if (!user) {
         return res
           .status(404)
-          .json({ message: "User not found! Create Account First" });
+          .json({ message: "Account not found! Create Account First" });
       }
 
       // Verify the password
