@@ -221,6 +221,19 @@ router.post("/forgot-password", async (req, res) => {
 
     // Generate a reset token
     const resetToken = generateResetToken(user._id);
+    let subject = "Password Ressetting ";
+    let message = `<!DOCTYPE html>
+    <html>
+    <head>
+      <title>Password Reset Page</title>
+    </head>
+    <body>
+      <h1>Password Reset Page</h1>
+      <p>Please click the link below to Set New Password:</p>
+      <a href="https://opacfrontend.netlify.app/login?logintoken=${resetToken}">Set New Password</a>
+    </body>
+    </html>`;
+    sendEmail(email, subject, message);
 
     // Send reset password email
     // await sendResetEmail(user.email, resetToken);
