@@ -70,7 +70,7 @@ router.post("/register", async (req, res) => {
       "
     >
       <p style="font-size: 1.3rem; font-weight: 600">
-        Dear select* from ${(newUser.firstname, newUser.surname)},
+        Dear  ${newUser.firstname + newUser.surname},
       </p>
       <p>
         We are pleased inform you that your account has been created with us. To
@@ -179,7 +179,7 @@ router.post("/login", async (req, res) => {
       "
     >
       <p style="font-size: 1.3rem; font-weight: 600">
-        Dear select* from ${(user.firstname, user.surname)},
+        Dear  ${user.firstname + user.surname},
       </p>
       <p>
         We are pleased inform you that your account has been created with us. To
@@ -246,7 +246,7 @@ router.post("/login", async (req, res) => {
       "
     >
       <p style="font-size: 1.3rem; font-weight: 600">
-        Dear select* from ${(user.firstname, user.surname)},
+        Dear ${user.firstname + user.surname},
       </p>
       <p>
         We are pleased inform you that your account has been created with us. To
