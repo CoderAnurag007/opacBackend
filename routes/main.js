@@ -43,17 +43,52 @@ router.post("/register", async (req, res) => {
     });
 
     let subject = "Opac Account Activation";
-    let message = `<!DOCTYPE html>
-    <html>
-    <head>
-      <title>Account Activation Page</title>
-    </head>
-    <body>
-      <h1>Account Activation Page</h1>
-      <p>Please click the link below to login:</p>
-      <a href="https://opacfrontend.netlify.app/login?logintoken=${token}">Login</a>
-    </body>
-    </html>`;
+    let message = `<html>
+  <head>
+    <title>Account Activation Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    style="
+      font-family: 'Nunito Sans', sans-serif;
+      font-weight: 600;
+      background-color: rgb(250, 250, 250);
+    "
+  >
+    <div
+      style="
+        width: 22rem;
+        padding: 10px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(172, 171, 171, 0.244);
+      "
+    >
+      <p style="font-size: 1.3rem; font-weight: 600">
+        Dear select* from {yourfirstname, yoursurname},
+      </p>
+      <p>
+        We are pleased inform you that your account has been created with us. To
+        confirm your registration, please click on the button below.
+      </p>
+
+      <p style="font-weight: bold">Confirm Your Account</p>
+      
+      <br />
+      <p>
+        Thank you Upon clicking the <a href="https://opacfrontend.netlify.app/login?logintoken=${token}" style="color: #625afa; font-weight: bold;"> Confirm Your Account</a> the user account is
+        confirmed on the database and is directed to the login page.
+      </p>
+
+      <p>- The Opac Team</p>
+    </div>
+  </body>
+</html>`;
     await sendEmail(email, subject, message);
     res.status(201).json({ message: "Account registered successfully" });
   } catch (error) {
@@ -155,7 +190,7 @@ router.post("/login", async (req, res) => {
       
       <br />
       <p>
-        Thank you Upon clicking the <a href="https://opacfrontend.netlify.app/login?logintoken=${token}" style="color: #625afa; font-weight: bold;font-size: 1.2rem;"> Confirm Your Account</a> the user account is
+        Thank you Upon clicking the <a href="https://opacfrontend.netlify.app/login?logintoken=${token}" style="color: #625afa; font-weight: bold;"> Confirm Your Account</a> the user account is
         confirmed on the database and is directed to the login page.
       </p>
 
@@ -222,7 +257,7 @@ router.post("/login", async (req, res) => {
       
       <br />
       <p>
-        Thank you Upon clicking the <a href="https://opacfrontend.netlify.app/login?logintoken=${token}" style="color: #625afa; font-weight: bold;font-size: 1.2rem;"> Confirm Your Account</a> the user account is
+        Thank you Upon clicking the <a href="https://opacfrontend.netlify.app/login?logintoken=${token}" style="color: #625afa; font-weight: bold;"> Confirm Your Account</a> the user account is
         confirmed on the database and is directed to the login page.
       </p>
 
