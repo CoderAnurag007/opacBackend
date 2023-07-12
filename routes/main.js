@@ -67,6 +67,15 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password, logintoken } = req.body;
+    // Find the user by username (email)
+    const user = await User.findOne({ email });
+
+    // If user not found, return error
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Account not found! Create Account First" });
+    }
     // Verify the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -168,16 +177,6 @@ router.post("/login", async (req, res) => {
         }
       }
     } else {
-      // Find the user by username (email)
-      const user = await User.findOne({ email });
-
-      // If user not found, return error
-      if (!user) {
-        return res
-          .status(404)
-          .json({ message: "Account not found! Create Account First" });
-      }
-
       if (user.status == "SUSPENDED") {
         let subject = "Opac Account Activation";
         const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
