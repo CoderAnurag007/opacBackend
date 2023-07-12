@@ -70,7 +70,7 @@ router.post("/register", async (req, res) => {
       "
     >
       <p style="font-size: 1.3rem; font-weight: 600">
-        Dear select* from {yourfirstname, yoursurname},
+        Dear select* from ${(newUser.firstname, newUser.surname)},
       </p>
       <p>
         We are pleased inform you that your account has been created with us. To
@@ -136,7 +136,7 @@ router.post("/login", async (req, res) => {
         console.log(user);
         if (!user) {
           return res.status(404).json({
-            message: "Account not Registered Properly , Register again",
+            message: "Account not Registered Properly , Please Register again",
           });
         }
         user.status = "ACTIVE";
@@ -179,7 +179,7 @@ router.post("/login", async (req, res) => {
       "
     >
       <p style="font-size: 1.3rem; font-weight: 600">
-        Dear select* from {yourfirstname, yoursurname},
+        Dear select* from ${(user.firstname, user.surname)},
       </p>
       <p>
         We are pleased inform you that your account has been created with us. To
@@ -203,7 +203,7 @@ router.post("/login", async (req, res) => {
           await sendEmail(email, subject, html);
           return res.status(404).json({
             message:
-              "Activation Link is Expired Please Check mail to get New Link",
+              "Activation Link is Expired, Please Check mail to get New Link",
           });
         } else {
           return res
@@ -246,7 +246,7 @@ router.post("/login", async (req, res) => {
       "
     >
       <p style="font-size: 1.3rem; font-weight: 600">
-        Dear select* from {yourfirstname, yoursurname},
+        Dear select* from ${(user.firstname, user.surname)},
       </p>
       <p>
         We are pleased inform you that your account has been created with us. To
@@ -268,7 +268,8 @@ router.post("/login", async (req, res) => {
 `;
         await sendEmail(user.email, subject, message);
         return res.status(404).json({
-          message: "Please Activate your Account from link sent to your mail ",
+          message:
+            "Kindly check your email and confirm your account to be able to Login.",
         });
       }
 
