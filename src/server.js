@@ -5,7 +5,26 @@ require("dotenv").config(); // Load environment variables from .env file
 const jwt = require("jsonwebtoken");
 
 const app = express();
-app.use(cors());
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://opac.netlify.app",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Check if the origin is allowed or if it's a preflight request
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
+
 const publicroutes = [
   "/",
   "/api/login",

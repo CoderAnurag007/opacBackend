@@ -55,8 +55,50 @@ const userSchema = new mongoose.Schema({
       "TERMINATED",
     ],
 
-    default: "SUSPENDED",
+    default: "BETA",
   },
+  accountno: {
+    type: String,
+  },
+  profile: {
+    profiletype: {
+      type: String,
+      enum: ["Underwriter", "UnderwriterAdmin", "Risk", "Admin", "Merchant"],
+      default: "Merchant",
+    },
+  },
+
+  businesses: [
+    {
+      buisnessno: {
+        type: String,
+      },
+      channels: [
+        {
+          channelno: {
+            type: String,
+          },
+        },
+      ],
+      status: {
+        type: String,
+        enum: [
+          "BETA",
+          "ALPHA",
+          "GAMMA",
+          "UNDER REVIEW",
+          "DECLINED",
+          "PRE-ACTIVE",
+          "ACTIVE",
+          "SUSPENDED",
+          "TERMINATED",
+        ],
+
+        default: "BETA",
+      },
+    },
+  ],
+
   createdAt: {
     type: Date,
     default: Date.now,

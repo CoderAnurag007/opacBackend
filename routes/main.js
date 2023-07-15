@@ -212,7 +212,7 @@ router.post("/login", async (req, res) => {
         }
       }
     } else {
-      if (user.status == "SUSPENDED") {
+      if (user.status == "BETA") {
         let subject = "Opac Account Activation";
         const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
         const expiresIn = "2h";
