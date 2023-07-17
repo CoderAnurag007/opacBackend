@@ -277,7 +277,7 @@ router.post("/login", async (req, res) => {
       const token = generateToken(user._id, user.role);
 
       // Return the token
-      res.status(200).json({ token: token });
+      res.status(200).json({ token: token, user: user });
     }
   } catch (error) {
     console.log(error.message);
