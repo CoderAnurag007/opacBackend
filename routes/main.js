@@ -7,6 +7,19 @@ const nodemailer = require("nodemailer");
 const Imap = require("imap");
 // Registration API
 
+function generateAccountNumber() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const accountNumberLength = 8;
+  let accountNumber = "";
+
+  for (let i = 0; i < accountNumberLength; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    accountNumber += characters[randomIndex];
+  }
+
+  return accountNumber;
+}
+
 router.post("/register", async (req, res) => {
   try {
     const { firstname, surname, companyName, password, role, email } = req.body;
@@ -22,6 +35,8 @@ router.post("/register", async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const accountNo = generateAccountNumber();
+
     // Create a new user with hashed password
     const newUser = new User({
       firstname,
@@ -30,6 +45,7 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       role,
       email,
+      accountno: accountNo,
     });
     await newUser.save();
     const secretKey = process.env.JWT_SECRET_KEY || "secretKey";
