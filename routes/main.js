@@ -510,5 +510,9 @@ async function sendEmail(recipientEmail, subject, message) {
   }
 }
 
+router.post("/verify-token", async (req, res) => {
+  return res.status(200).json("Token Valid");
+});
+
 // Export the router
 module.exports = router;
