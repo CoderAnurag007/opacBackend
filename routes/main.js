@@ -159,7 +159,7 @@ router.post("/login", async (req, res) => {
         await user.save();
         const token = generateToken(user._id, user.role);
         // Return the token
-        res.status(200).json({ token: token });
+        res.status(200).json({ token: token, user: user });
       } catch (error) {
         if (error.name == "TokenExpiredError") {
           let subject = "Opac Account Activation";
